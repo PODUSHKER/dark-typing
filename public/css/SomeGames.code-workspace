@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "../.."
+		},
+		{
+			"path": "../../../Store"
+		},
+		{
+			"path": "../../../MySite"
+		}
+	],
+	"settings": {}
+}

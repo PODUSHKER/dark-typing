@@ -1,0 +1,329 @@
+<input type="hidden" id="isAuth" value="{{user._id}}">
+<div class="page-container">
+    <!-- Левая часть - Чат -->
+    <div class="chat-container">
+        <h2>Чат</h2>
+        <div id="chat-messages">
+            {{#each messages}}
+            <div class="message-day">
+                <div class="day-line"></div>
+                <p>{{showDate this.createdAt}}</p>
+                <div class="day-line"></div>
+            </div>
+            <div class="message">
+                <div class="message-head">
+                    <span class="sender">{{this.from.username}}</span>
+                    <span class="time">[{{getTime this.createdAt}}]</span>
+                </div>
+                <p class="message-text">{{this.text}}</p>
+            </div>
+            {{/each}}
+        </div>
+        <div class="divider"></div> <!-- Линия разделения -->
+        <textarea id="chat-input" {{#if user}}placeholder="Введите сообщение..." {{else}}placeholder="Войдите для использования чата!" disabled{{/if}}></textarea>
+    </div>
+
+    <!-- Центральная часть - Основной контент -->
+
+    <div class="container">
+        <div class="header">
+            <div class="language-selector">
+                <select id="language-select">
+                    <option value="ru">русский</option>
+                    <option value="en" selected>english</option>
+                </select>
+            </div>
+            <h1>dark.typing:_</h1>
+        </div>
+        <div class="terminal active">
+            <div class="text-generator">
+                <div class="generated-text">
+                    <span id="cursor">_</span>
+                    <p id="typing-text"><span id="isPressed" style="color:#00ff00"></span><span id="needToPress"></span></p>
+                    <textarea id="typing-area" rows="3"></textarea>
+                    <button id="restart-btn" onclick="restartTyping()"><img id="restart-img" src="/img/service-img/restart.png" alt="restart"></button>
+                </div>
+            </div>
+
+            <div class="results">
+                <div class="leaderboard" id="result-title" style="display:none">
+                    <h2>Результат:</h2>
+                </div>
+                <p>Скорость: <span id="speed">0</span> CPM</p>
+                <p>Ошибки: <span id="errors">0</span></p>
+                <p>Точность: <span id="accuracy">100%</span></p>
+            </div>
+        </div>
+        <div class="leaderboard" id="leaderb">
+                <h2>Таблица лидеров:</h2>
+                <ol>
+                    {{#each (getTopResults results)}}
+                    <li>
+                        <div class="leaderboard-entry">
+                            <span class="leaderboard-rank">{{numberIncrement @index}}</span> <!-- Место в топе -->
+                            <span class="leaderboard-name">{{this.user.username}}</span> <!-- Никнейм -->
+                            <span class="leaderboard-speed">{{this.speed}} CPM</span> <!-- Скорость -->
+                            <span class="leaderboard-time">{{getTime this.createdAt}}</span> <!-- Время написания -->
+                            <span id="{{this.user._id}}" style="display: none;"></span>
+                        </div>
+                    </li>
+                    {{/each}}
+                </ol>
+            </div>
+    </div>
+
+    <!-- Правая часть - Меню -->
+    <div class="menu-container">
+        <h2>Меню</h2>
+        {{#if user}}
+        <div class="menu-item" id="logout">Выйти</div>
+        {{else}}
+        <div class="menu-item" id="login">Войти</div>
+        <div class="menu-item" id="register">Зарегистрироваться</div>
+        {{/if}}
+    </div>
+</div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        
+        let timerIsStarted = false;
+        let timeLost = 0;
+        let speedInterval;
+        const terminal = document.querySelector('.terminal')
+        let cursor = document.getElementById('cursor')
+        const typingArea = document.getElementById('typing-area')
+        let typingText = document.getElementById('typing-text')
+        const isPressed = typingText.firstElementChild
+        const needToPress = typingText.lastElementChild
+        const langSelect = document.getElementById('language-select')
+        const chatArea = document.getElementById('chat-input')
+        const chatList = document.getElementById('chat-messages')
+        const socket = io()
+    
+
+        async function saveResult(speed, errors, accuracy){
+            const user = document.getElementById('isAuth').value
+            if (user){
+                speed = Number(speed.innerText)
+                errors = Number(errors.innerText)
+                accuracy = Number(accuracy.innerText.slice(0, -1))
+
+                const results = (await (await fetch('/api/saveResult', {
+                    method: 'post',
+                    body: JSON.stringify({speed, errors, accuracy}),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                    })).json())['results'].sort((a, b) => b.speed - a.speed)
+
+    
+                const innerData = [...results].map((el, ind) => `
+                    <li>
+                        <div class="leaderboard-entry">
+                            <span class="leaderboard-rank">${ind + 1}</span>
+                            <span class="leaderboard-name">${el.user.username}</span>
+                            <span class="leaderboard-speed">${el.speed} CPM</span>
+                            <span class="leaderboard-time">${new Date(el.createdAt).toTimeString().slice(0, 5)}</span>
+                        </div>
+                    </li>
+                `).join('')
+                const leaderboardList = document.getElementById('leaderb').children[1];
+                leaderboardList.innerHTML = innerData
+                
+            }
+        }
+
+        async function showMessageDay(){
+            const memory = [];
+            const messageDays = document.querySelectorAll('.message-day').forEach((el, ind) => {
+                const date = el.children[1].innerHTML
+                if (!memory.includes(date)){
+                    memory.push(date)
+                    console.log(date)
+                    el.style.display = 'flex'
+                }
+            })
+        }
+        showMessageDay()
+
+        async function clickTracker(e) {
+            const srcText = typingText.innerText
+
+            if (e.key.length === 1){
+
+                const firstKey = `${needToPress.innerText}`
+                if (e.key === firstKey){
+
+                    if(!timerIsStarted){
+                        timerExec()
+                        timerIsStarted = true
+                    }
+
+                    isPressed.innerHTML = isPressed.innerHTML+needToPress.innerText
+                    needToPress.innerHTML = typingText.lastChild.textContent[0] || ''
+                    typingText.lastChild.textContent = typingText.lastChild.textContent.slice(1)
+                    updateCursorPosition(typingText)
+
+                    if (isPressed.innerHTML.trim() === srcText.trim()){
+                        console.log
+                        clearInterval(speedInterval)
+                        const speed = document.getElementById('speed')
+                        const errors = document.getElementById('errors')
+                        const accuracy = document.getElementById('accuracy')
+                        document.getElementById('cursor').style.opacity = 0;
+                        showResult(e.target)
+                        saveResult(speed, errors, accuracy)
+
+
+                    }
+                }
+                else{
+                    e.preventDefault()
+                    const errors = document.getElementById('errors')
+                    const accuracy = document.getElementById('accuracy')
+                    errors.innerHTML = (Number(errors.innerHTML)+1).toString()
+                    let accuracyProcent = 100-((Number(errors.innerHTML)/srcText.length)*100)
+                    accuracyProcent = (accuracyProcent < 0 ? 0 : accuracyProcent).toFixed(1)
+                    accuracy.innerHTML = `${accuracyProcent}%`
+                }
+            }
+            else{
+                e.preventDefault()
+            }
+        }
+        
+        async function showResult(area) {
+            area.removeEventListener('keydown', clickTracker)
+            document.getElementById('result-title').style.display = 'inline'
+            const speed = document.getElementById('speed')
+            speed.innerHTML = ((typingArea.value.length/timeLost)*60).toFixed(0)
+        }
+
+        async function updateCursorPosition(typingText){
+            const currentChar = typingText.lastElementChild;
+            if (currentChar){
+                const rect = isPressed.getBoundingClientRect()
+                const cursorRect = currentChar.getBoundingClientRect()
+                cursor.style.top = `${cursorRect.top - rect.top + 20}px`
+                cursor.style.left = `${(cursorRect.left - rect.left) + (rect.left-terminal.getBoundingClientRect().left-21.5)}px`
+            }
+        }
+        
+        async function timerExec(perSec=1){
+            speedInterval = setInterval(() => {
+                timeLost += perSec;
+                const speed = document.getElementById('speed');
+                const typingArea = document.getElementById('typing-area')
+                speed.innerHTML = ((typingArea.value.length/timeLost)*60).toFixed(0)
+            }, 1000*perSec)
+        }
+        
+        async function loadTypingText(){
+            const text = (await (await fetch('/api/getTypingText', {
+                method: 'post',
+                body: JSON.stringify({lang: langSelect.value}),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })).json())['typingText']
+
+            if (typingText.lastChild.nodeName === '#text'){
+                typingText.lastChild.nodeValue = '';
+            }
+            isPressed.innerHTML = ''
+            needToPress.innerHTML = text[0]
+            typingText.insertAdjacentHTML('beforeend', text.slice(1))
+        }
+
+        async function restartTyping(){
+            document.getElementById('cursor').style.opacity = 1;
+            await loadTypingText()
+            await updateCursorPosition(typingText)
+            typingArea.addEventListener('keydown', clickTracker)
+            await clearInterval(speedInterval)
+            document.getElementById('speed').innerHTML = 0;
+            document.getElementById('errors').innerHTML = 0;
+            document.getElementById('accuracy').innerHTML = '100%';
+            document.getElementById('result-title').style.display = 'none'
+            timerIsStarted = false;
+            typingArea.value = '';
+            timeLost = 0;
+        }
+       
+
+
+        async function initParams(){
+            await loadTypingText()
+            await updateCursorPosition(typingText)
+
+            document.querySelectorAll('.menu-item').forEach(el => {
+            el.addEventListener('click', (e) => {
+                location.href = `/${el.id}`
+            })
+        })
+
+            typingArea.addEventListener('keydown', clickTracker)
+
+            typingArea.focus()
+            document.addEventListener('click', (e) => {
+                if (e.target.closest('.terminal')){
+                    typingArea.focus()
+                    terminal.classList.add('active')
+                }
+                else {
+                    terminal.classList.remove('active')
+                }
+            })
+
+            const select = document.getElementById('language-select')
+            select.addEventListener('change', async (e) => {
+                console.log('im here')
+                await restartTyping()
+                terminal.style.opacity = 1;
+            })
+
+            chatList.lastElementChild.scrollIntoView(true)
+            socket.on('showMessage', async (message) => {
+                chatList.insertAdjacentHTML('beforeend', message)
+                chatList.lastElementChild.scrollIntoView(true)
+
+            })
+            chatArea.addEventListener('keydown', async (e) => {
+            if (e.key === 'Enter'){
+                const text = chatArea.value;
+                chatArea.value = '';
+                const from = '{{user._id}}'
+                await fetch('/api/sendMessage', {
+                    method: 'post',
+                    body: JSON.stringify({from, text}),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                
+                const message = `
+                    <div class="message">
+                        <div class="message-head">
+                            <span class="sender">{{user.username}}</span>
+                            <span class="time">[${new Date().toTimeString().slice(0, 5)}]</span>
+                        </div>
+                        <p class="message-text">${text}</p>
+                    </div>
+                `
+                await chatList.insertAdjacentHTML('beforeend', message)
+                chatList.lastElementChild.scrollIntoView(true)
+                socket.emit('showMessage', message)
+            }
+        })
+
+            document.addEventListener('visibilitychange', async (e) => {
+            if (!document.hidden){
+                await updateCursorPosition(typingText)
+            }
+        })
+        }
+        initParams()
+
+
+        
+    </script>
