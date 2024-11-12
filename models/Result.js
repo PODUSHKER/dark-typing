@@ -1,26 +1,24 @@
-const mongoose = require('mongoose')
-const User = require('./User.js')
+const {sequelize, DataTypes} = require('../utils/dbSettings.js')
 
-const resultSchema = new mongoose.Schema({
-    user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: User,
-        required: true
+const Result = sequelize.define('Result', {
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+        allowNull: false
     },
     speed: {
-        type: Number,
-        required: true
+        type: DataTypes.INTEGER,
+        allowNull: false
     },
-    errors: {
-        type: Number,
-        required: true
+    mistakes: {
+        type: DataTypes.INTEGER,
+        allowNull: false
     },
     accuracy: {
-        type: Number,
-        required: true
+        type: DataTypes.INTEGER,
+        allowNull: false
     },
-}, {timestamps: true})
-
-const Result = mongoose.model('Result', resultSchema)
-
+})
+//user
 module.exports = Result

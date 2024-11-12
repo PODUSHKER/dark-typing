@@ -1,17 +1,19 @@
-const User = require('../models/User.js')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
-const Result = require('../models/Result.js')
-const Message = require('../models/Message.js')
+const { User, Message, Result } = require('../models/associations.js')
+
 const fs = require('fs').promises
 const path = require('path')
 
 
 exports.getMain = async (request, response) => {
     try{
-        const results = (await Result.find({}).populate('user').exec()).sort((a, b) => b.speed-a.speed)
-        const formatResults = results.reduce((acc, el) => acc.map(el => String(el.user)).includes(String(el.user)) ? acc : [...acc, el], [])
-        const messages = await Message.find({}).populate('from').exec()
+        const results = (await Result.findAll({include: User})).sort((a, b) => b.speed-a.speed)
+        const formatResults = results.reduce((acc, el) => acc.map(el => String(el.UserId)).includes(String(el.UserId)) ? acc : [...acc, el], [])
+        const messages = await Message.findAll({include: User})
+        console.log('messages', messages)
+        console.log('formatResults', formatResults)
+        console.log('results', results)
         response.render('main.hbs', {title: 'dark.typing:_', results: formatResults, cssFile: 'main.css', messages})
     }
     catch(err){
@@ -31,11 +33,11 @@ exports.getLogin = async (request, response) => {
 exports.postLogin = async (request, response) => {
     try{
         console.log('im here')
-        const user = await User.findOne({email: request.body['email']})
+        const user = await User.findOne({where: {email: request.body['email']}})
         if (user){
             const isValid = await bcrypt.compare(request.body['password'], user.password);
             if(isValid){
-                const token = jwt.sign({ _id: user._id }, process.env.SECRET, {expiresIn: '24h'})
+                const token = jwt.sign({ id: user.id }, process.env.SECRET, {expiresIn: '24h'})
                 response.cookie('token', `Bearer ${token}`)
                 response.redirect("/")
             }
