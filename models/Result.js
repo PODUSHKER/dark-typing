@@ -1,4 +1,4 @@
-const {sequelize, DataTypes} = require('../utils/dbSettings.js')
+const { sequelize, DataTypes } = require('../utils/dbSettings.js')
 
 const Result = sequelize.define('Result', {
     id: {
@@ -15,8 +15,16 @@ const Result = sequelize.define('Result', {
         type: DataTypes.INTEGER,
         allowNull: false
     },
-    accuracy: {
+    time: {
         type: DataTypes.INTEGER,
+        allowNull: false
+    },
+    accuracy: {
+        type: DataTypes.DECIMAL,
+        allowNull: false
+    },
+    language: {
+        type: DataTypes.CHAR(10),
         allowNull: false
     },
 })

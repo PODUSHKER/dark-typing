@@ -1,0 +1,101 @@
+/* Auth Container - полная интеграция с base.hbs */
+.auth-wrapper {
+    grid-column: 2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.auth-terminal {
+    width: 100%;
+    max-width: 500px;
+    background-color: var(--panel-bg);
+    border: 1px solid var(--primary-color);
+    box-shadow: var(--glow-effect);
+    border-radius: 5px;
+    overflow: hidden;
+    margin: 20px 0;
+}
+
+.auth-form {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.input-group label {
+    font-size: 0.9rem;
+    color: var(--secondary-color);
+    letter-spacing: 1px;
+}
+
+.input-group input {
+    background-color: transparent;
+    border: 1px solid var(--primary-color);
+    color: var(--text-color);
+    padding: 10px;
+    outline: none;
+    transition: all 0.3s;
+}
+
+.input-group input:focus {
+    border-color: var(--light-green);
+    box-shadow: 0 0 10px var(--light-green);
+}
+
+.auth-btn {
+    background-color: var(--primary-color);
+    color: var(--bg-color);
+    border: none;
+    padding: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: all 0.3s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.auth-btn:hover {
+    background-color: var(--secondary-color);
+    color: var(--text-color);
+}
+
+.auth-footer {
+    padding: 15px;
+    border-top: 1px solid var(--primary-color);
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    font-size: 0.9rem;
+}
+
+.auth-link {
+    color: var(--light-green);
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+.auth-link:hover {
+    text-shadow: 0 0 5px var(--light-green);
+}
+
+/* Адаптация для мобильных */
+@media (max-width: 768px) {
+    .auth-wrapper {
+        grid-column: 1;
+        padding: 15px;
+    }
+    
+    .auth-terminal {
+        margin: 0;
+    }
+}

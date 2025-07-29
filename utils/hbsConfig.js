@@ -1,7 +1,8 @@
 const expressHbs = require('express-handlebars')
 
 const hbsConfig = expressHbs.engine({
-    layoutsDir: 'views/layouts',
+    layoutsDir: 'templates/layouts',
+    partialsDir: 'templates/partials',
     defaultLayout: 'base',
     extname: 'hbs',
     
@@ -12,7 +13,8 @@ const hbsConfig = expressHbs.engine({
 
     helpers: {
         getTime(datetime){
-            return datetime.toTimeString().slice(0, 5)
+            const date = new Date(datetime)
+            return date.toTimeString().slice(0, 5)
         },
         numberIncrement(number){
             return Number(number)+1
@@ -24,14 +26,14 @@ const hbsConfig = expressHbs.engine({
             return !obj;
         },
         showDate(date){
-            const today = new Date().getDate()
+            const today = new Date().getDate
             if (date.getDate() === today){
                 return 'Сегодня'
             }
             if (date.getDate() === today-1){
                 return 'Вчера'
             }
-            return date.toDateString()
+            return date.toISOString().slice(0, 10)
         }
     }
 })

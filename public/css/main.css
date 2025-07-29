@@ -1,489 +1,292 @@
-body {
-    background-color: #0d0d0d;
-    color: #00ff00;
-    font-family: 'Courier New', Courier, monospace;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-}
-
-.container {
-    width: 80%;
-    max-width: 800px;
-    text-align: center;
-    padding-bottom: 80px;
-    padding-top: 320px;
-}
-
-.message-day {
-    display: none;
-    flex-direction: row;
-    margin: 20px 0;
-}
-
-.day-line {
-    height: 0;
-    width: 100%;
-    border: 1px solid #00ff00;
-    margin: auto 0;
-}
-
-.container h1 {
-    font-size: 2.5rem;
-    margin-top: 40px;
-    margin-bottom: 20px;
-    color: #00ff00;
-}
-
-/* Auth Buttons */
-/* Auth Buttons */
-.auth-buttons {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 20px;
-    margin-right: 30px
-}
-
-.auth-buttons button {
-    background-color: #00ff00;
-    color: #0d0d0d;
-    border: none;
-    padding: 10px 20px;
-    font-size: 1rem;
-    margin-left: 10px;
-    cursor: pointer;
-    border-radius: 5px;
-}
-
-.auth-buttons button:first-child {
-    margin-left: 0;
-}
-
-.auth-buttons button:hover {
-    background-color: #00cc00;
-}
-
-/* Terminal Styles */
-.terminal {
-    transition: 0.5s ease;
-    opacity: 0.5;
-    background-color: #1a1a1a;
-    padding: 20px;
-    border: 2px solid #00ff00;
-    border-radius: 10px;
-    filter: grayscale(100%);
-}
-
-.terminal.active {
-    filter: grayscale(0);
-    opacity: 1;
-    box-shadow: 0 0 8px #00ff00;
-}
-
-p, h2 {
-    margin: 10px 0;
-}
-
-.label {
-    color: #00ff00;
-}
-
-.input-section input {
-    background-color: #0d0d0d;
-    color: #00ff00;
-    border: none;
-    border-bottom: 2px solid #00ff00;
-    padding: 10px;
-    font-size: 1.2rem;
-    width: 60%;
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-.input-section input:focus {
-    outline: none;
-    border-bottom: 2px solid #00cc00;
-}
-
-.text-generator p {
-    margin: 20px 0;
-}
-
-.command {
-    color: #00ff00;
-}
-
-#typing-text {
-    display: inline-block;
+/* Language Selector */
+.language-selector {
     position: relative;
-    white-space: pre-wrap;
 }
 
-#cursor {
+.language-selector select {
+    background-color: transparent;
+    color: var(--text-color);
+    border: 1px solid var(--primary-color);
+    padding: 4px 25px 4px 8px;
+    appearance: none;
+    cursor: pointer;
+    outline: none;
+    font-size: 0.9rem;
+}
+
+.selector-arrows {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid var(--primary-color);
+    pointer-events: none;
+}
+
+/* Typing Container */
+.typing-container {
+    width: 100%;
+    max-width: 800px;
+    background-color: var(--panel-bg);
+    border: 1px solid var(--primary-color);
+    box-shadow: var(--glow-effect);
+    border-radius: 5px;
+    padding: 15px;
+}
+
+.terminal-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--primary-color);
+}
+
+.terminal-title {
+    margin-left: 8px;
+    font-weight: bold;
+    font-size: 0.95rem;
+}
+
+.text-display {
+    min-height: 120px;
+    margin-bottom: 15px;
+    line-height: 1.5;
+    font-size: 1rem;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    position: relative;
+}
+
+.typed {
+    color: var(--typed-color);
+}
+
+.current {
+    background-color: var(--cursor-color);
+    color: var(--bg-color);
+}
+
+.untyped {
+    color: var(--untyped-color);
+}
+
+.mistake {
+    color: var(--mistake-color);
+    text-decoration: underline;
+}
+
+.input-container {
+    position: relative;
+    margin-bottom: 15px;
+}
+
+#typingInput {
+    width: 100%;
+    background-color: transparent;
+    border: 1px solid var(--primary-color);
+    color: transparent;
+    padding: 8px;
+    caret-color: transparent;
+    outline: none;
+    position: relative;
+    z-index: 1;
+    opacity: 0;
+}
+
+.stats-container {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 15px;
+}
+
+.stat {
+    text-align: center;
+}
+
+.stat-label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--secondary-color);
+}
+
+.stat-value {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.stat-unit {
+    font-size: 0.75rem;
+    color: var(--secondary-color);
+}
+
+.reload-btn {
+    background-color: transparent;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+    padding: 8px 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+    font-size: 0.9rem;
+}
+
+.reload-btn:hover {
+    background-color: var(--primary-color);
+    color: var(--bg-color);
+}
+
+.reload-btn::before {
+    content: '';
     position: absolute;
     top: 0;
-    left: 0;
-    color: #00ff00;
-    font-weight: bold;
-    pointer-events: none;
-    z-index: 10; /* Убедись, что курсор находится над текстом */
-}
-
-.generated-text {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
-}
-
-.generated-text span#needToPress {
-    margin: 0; /* Убираем внешние отступы */
-    padding: 0; /* Убираем внутренние отступы, если не нужно */
-    display: inline; /* Убедись, что элемент остаётся строковым */
-}
-
-#typing-area {
-    margin-top: 20px;
-}
-
-.generated-text p {
-    color: #999
-}
-
-.generated-text textarea {
-    opacity: 0; /* Делаем textarea полностью прозрачным */
-    position: absolute; /* Можно убрать его из потока страницы */
-    z-index: -1; /* Перемещаем его за все элементы */
-    pointer-events: none; /* Убираем возможность кликов */
-}
-
-.generated-text textarea:focus {
-    outline: none;
-    border-color: #00cc00;
-}
-
-/* Restart Button */
-#restart-btn {
-    margin-top: 10px;
-    background: none;
-    color: #0d0d0d;
-    border: none;
-    padding: 5px;
-    font-size: 1rem;
-    cursor: pointer;
-    border-radius: 5px;
-    filter: grayscale(100%)
-}
-
-#restart-btn:hover {
-    filter: grayscale(0);
-    transition: filter 0.3s ease;
-}
-#restart-img {
-    width: 30px;
-    height: 20px;
-}
-
-
-
-
-.results p {
-    margin: 10px 0;
-    font-size: 1rem;
-}
-
-.leaderboard {
-    margin-top: 30px;
-
-}
-
-#result-title h2 {
-    margin-top: 20px
-}
-
-.leaderboard h2 {
-    font-size: 1.5rem;
-    margin-bottom: 15px;
-    color: #00ff00;
-    text-align: center;
-}
-
-.leaderboard ol {
-    list-style-type: none; /* Убираем стандартную нумерацию */
-    padding: 0;
-    margin: 0 0 60px 0;
-}
-
-.leaderboard li {
-    margin-bottom: 10px;
-}
-
-.leaderboard-entry {
-    display: flex;
-    justify-content: space-between; /* Распределяем элементы по краям */
-    align-items: center;
-    padding: 10px;
-    background-color: #0d0d0d;
-    border: 1px solid #00ff00;
-    border-radius: 5px;
-    color: #00ff00;
-    font-family: 'Courier New', Courier, monospace;
-}
-
-.leaderboard-entry span {
-    flex-basis: 20%; /* Каждый элемент занимает 20% ширины */
-    text-align: center; /* Центрируем каждый элемент */
-}
-
-/* Индивидуальные стили для элементов */
-.leaderboard-rank {
-    text-align: left; /* Место выравнивается по левому краю */
-    font-weight: bold;
-    color: #00cc00; /* Цвет для номера места */
-}
-
-.leaderboard-name {
-    text-align: left; /* Никнейм выравнивается по левому краю */
-    flex-basis: 40%; /* Никнейм занимает больше места */
-}
-
-.leaderboard-speed {
-    text-align: right;
-    margin-right: 10px;
-}
-
-.leaderboard-time {
-    text-align: right;
-}
-
-/* Адаптивный дизайн для мобильных устройств */
-@media (max-width: 600px) {
-    .leaderboard-entry {
-        flex-direction: column;
-        text-align: center;
-    }
-
-    .leaderboard-rank, .leaderboard-name, .leaderboard-speed, .leaderboard-time {
-        flex-basis: 100%;
-        margin: 5px 0;
-    }
-}
-
-.page-container {
-    display: flex;
-    height: 100vh;
+    left: -100%;
     width: 100%;
-    overflow: hidden; /* Отключаем прокрутку всего контейнера */
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0, 255, 65, 0.4), transparent);
+    transition: all 0.5s;
 }
 
-.chat-container {
-    flex: 1;
+.reload-btn:hover::before {
+    left: 100%;
+}
+
+.reload-icon {
+    width: 14px;
+    height: 14px;
+    margin-left: 8px;
+    border: 2px solid var(--primary-color);
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 2s linear infinite;
+    display: none;
+}
+
+.reload-btn:hover .reload-icon {
+    display: block;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Leaderboard Styles */
+.leaderboard-container {
+    grid-column: 2;
+    grid-row: 2;
+    background-color: var(--panel-bg);
+    border: 1px solid var(--primary-color);
+    box-shadow: var(--glow-effect);
+    border-radius: 5px;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
-    height: 100vh;
-    background-color: #1a1a1a;
-    color: #00ff00;
-    padding: 20px;
-    border-right: 2px solid #00ff00;
-    box-sizing: border-box;
-    position: sticky;
-    top: 0; /* Фиксируем чат в верхней части экрана */
-    overflow-y: auto; /* Добавляем отдельную прокрутку, если сообщений будет много */
+    max-height: 450px;
 }
 
-.chat-container h2 {
-    flex-shrink: 0; /* Заголовок не уменьшается */
-    text-align: center;
-    margin: 0 0 20px 0; /* Добавляем отступ внизу */
+.leaderboard-header {
+    background-color: var(--accent-color);
+    padding: 10px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--primary-color);
+    flex-shrink: 0;
 }
 
-/* Ограничиваем контейнер для сообщений */
-#chat-messages {
+.leaderboard-table-wrapper {
+    overflow-y: auto;
     flex-grow: 1;
-    overflow-y: auto; /* Прокрутка только для сообщений */
-    max-height: calc(100vh - 130px); /* Высота с учетом заголовка и textarea */
-    padding-right: 10px;
-    scrollbar-width: thin; /* Для Firefox: тонкая полоса прокрутки */
-    scrollbar-color: #00ff00 #1a1a1a; /* Цвет прокрутки и фона */
 }
 
-#chat-input {
+.leaderboard-table {
     width: 100%;
-    height: 60px; /* Фиксированная высота для текстового поля */
-    resize: none; /* Запрещаем изменение размера */
-    background-color: #0d0d0d;
-    color: #00ff00;
-    border: 2px solid #00cc00;
-    border-radius: 5px;
-    padding: 10px;
-    font-size: 1rem;
-    box-sizing: border-box;
-    margin: 0;
-    flex-shrink: 0; /* Поле ввода не уменьшается */
-    margin-top: 10px; /* Отступ сверху от линии */
-    scrollbar-width: none; /* Скрываем ползунок в Firefox */
-    -ms-overflow-style: none;
+    border-collapse: collapse;
 }
 
-.divider {
-    width: 100%; /* Полная ширина */
-    height: 2px; /* Высота линии */
-    background-color: #00ff00; /* Цвет линии */
-    margin: 10px 0; /* Отступы сверху и снизу */
-}
-
-#chat-input:focus {
-    outline: none;
-    border-color: #00ff00;
-}
-
-/* Центральная часть - Основной контент */
-.container {
-    flex: 2;
-    text-align: center;
-    padding: 20px;
-    height: 100vh; /* Контейнер будет занимать всю высоту экрана */
-    overflow-y: auto; /* Основная прокрутка будет в центральной части */
-    scrollbar-width: none; /* Скрываем ползунок в Firefox */
-    -ms-overflow-style: none; /* Скрываем ползунок в Internet Explorer и Edge */
-}
-
-.container::-webkit-scrollbar {
-    display: none; /* Скрываем ползунок в Chrome, Safari и Opera */
-}
-
-/* Правая часть - Меню */
-/* Правая часть - Меню */
-.menu-container {
-    flex: 1;
-    background-color: #1a1a1a;
-    color: #00ff00;
-    padding: 20px;
-    border-left: 2px solid #00ff00;
-    box-sizing: border-box;
+.leaderboard-table th {
     position: sticky;
-    top: 0; /* Фиксируем меню в верхней части экрана */
-    overflow-y: auto; /* Добавляем отдельную прокрутку для меню */
+    top: 0;
+    z-index: 10;
 }
 
-.menu-container h2 {
-    flex-shrink: 0; /* Заголовок не уменьшается */
-    text-align: center;
-    margin: 0 0 20px 0; /* Добавляем отступ внизу */
-}
-
-/* Стили для пунктов меню */
-.menu-item {
-    width: 100%; /* Каждый элемент занимает всю ширину */
-    padding: 15px 0; /* Отступы внутри элемента */
-    cursor: pointer; /* Указатель при наведении */
-    border-radius: 5px; /* Закругленные углы */
-    transition: background-color 0.3s; /* Плавный переход цвета фона */
-    text-align: center; /* Выравнивание текста по центру */
-    margin-bottom: 10px; /* Отступ между элементами */
-    background-color: #1a1a1a; /* Фон элемента */
-
-}
-
-/* Эффект наведения */
-.menu-item:hover {
-    background-color: #00cc00; /* Цвет фона при наведении */
-    color: #0d0d0d; /* Цвет текста при наведении */
-}
-
-.menu-item:focus {
-    outline: none; /* Убираем обводку при фокусе */
-    box-shadow: 0 0 5px #00cc00; /* Легкое свечение при фокусе */
-}
-
-.message-head {
-    flex-direction: row;
-    margin-bottom: 10px;
-}
-
-.message {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 15px;
-    padding: 10px;
-    background-color: #0d0d0d;
-    border: 1px solid #00ff00;
-    border-radius: 5px;
-    word-wrap: break-word;
-    max-width: 100%;
-}
-
-.sender {
-    font-weight: bold;
-    color: #00cc00; /* Цвет ника отправителя */
-    margin-bottom: 5px;
-}
-
-.time {
+.leaderboard-table th, .leaderboard-table td {
+    padding: 6px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--primary-color);
     font-size: 0.85rem;
-    color: #666666; /* Цвет для времени */
-    align-self: flex-end; /* Время выравнивается по правому краю */
-    margin-bottom: 5px;
 }
 
-.message-text {
-    color: #00ff00;
-    margin: 0;
+.leaderboard-table th {
+    background-color: var(--accent-color);
+    font-weight: bold;
 }
 
-#chat-messages::-webkit-scrollbar {
-    width: 10px; /* Ширина полосы прокрутки */
+.leaderboard-table tr:hover {
+    background-color: rgba(0, 255, 65, 0.05);
 }
 
-#chat-messages::-webkit-scrollbar-track {
-    background-color: #1a1a1a; /* Цвет фона полосы прокрутки */
+.leaderboard-table tr:nth-child(1) {
+    color: gold;
+    font-weight: bold;
 }
 
-#chat-messages::-webkit-scrollbar-thumb {
-    background-color: #00ff00; /* Цвет ползунка */
-    border-radius: 5px; /* Закруглённые края ползунка */
+.leaderboard-table tr:nth-child(2) {
+    color: silver;
 }
 
-#chat-messages::-webkit-scrollbar-thumb:hover {
-    background-color: #00cc00; /* Цвет ползунка при наведении */
+.leaderboard-table tr:nth-child(3) {
+    color: #cd7f32;
 }
 
-.header {
-    position: relative;
-    text-align: center; /* Заголовок по центру */
-    padding: 0 20px;
+.leaderboard-table-wrapper::-webkit-scrollbar {
+    width: 8px;
 }
 
-.language-selector {
-    position: absolute;
-    right: 20px; /* Отступ от правой границы панели чата */
-    top: 50%;
+.leaderboard-table-wrapper::-webkit-scrollbar-track {
+    background: var(--accent-color);
 }
 
-/* Стиль выпадающего списка */
-.language-selector select {
-    background-color: #0d0d0d;
-    color: #00ff00;
-    border: 0;
-    border-radius: 5px;
-    padding: 0;
-    font-size: 1rem;
-    cursor: pointer;
-    font-family: 'Courier New', Courier, monospace;
+.leaderboard-table-wrapper::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 4px;
 }
 
-
-/* Ховер эффект для выпадающего списка */
-.language-selector select:hover {
-    background-color: #1a1a1a;
+.leaderboard-table-wrapper::-webkit-scrollbar-thumb:hover {
+    background: var(--secondary-color);
 }
 
+/* Terminal Focus Styles */
+.typing-container.focused {
+    box-shadow: 0 0 15px var(--primary-color);
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
 
+.typing-container.focused .terminal-header {
+    background-color: rgba(0, 255, 64, 0.601);
+}
 
-/* Фокусировка на элементе */
-.language-selector select:focus {
-    outline: none;
+.typing-container.focused .terminal-title {
+    color: var(--bg-color);
+}
+
+.typing-container.focused .light.green {
+    animation: pulse-green 1s infinite;
+}
+
+@keyframes pulse-green {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
 }

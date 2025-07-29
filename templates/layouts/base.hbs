@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DARK-TYPING | Speed Typing Terminal</title>
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/css/{{cssFile}}">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div class="matrix-bg"></div>
+    <div class="grid-container">
+        <!-- Left Panel - Chat -->
+        <div class="panel left-panel">
+            <div class="panel-header">
+                <h3>USER CHAT</h3>
+                <div class="header-lights">
+                    <span class="light red"></span>
+                    <span class="light yellow"></span>
+                    <span class="light green"></span>
+                </div>
+            </div>
+            <div class="chat-container" id="chatContainer">
+                <!-- Chat messages will appear here -->
+                <div class="system-message">System: Chat connected</div>
+                {{#each messages}}
+                <div class="chat-message">
+                    <div class="chat-message-content">{{this.User.username}}: {{this.text}}</div>
+                    <div class="chat-message-time">{{getTime this.createdAt}}</div>
+
+                </div>
+                {{/each}}
+            </div>
+            {{#if User}}
+            <div class="chat-input-container enable">
+                <input type="text" id="chatInput" placeholder="Type message...">
+                <button id="sendChatBtn">SEND</button>
+            </div>
+            {{else}}
+            <div class="chat-input-container disable">
+                <input type="text" id="chatInput" placeholder="Login to use chat...">
+                <button id="sendChatBtn">SEND</button>
+            </div>
+            {{/if}}
+        </div>
+
+        <!-- Center Panel - Typing Area -->
+        <div class="center-panel">
+            <div class="title-container">
+                <h1 class="main-title glitch" data-text="DARK-TYPING">DARK-TYPING</h1>
+                {{#if isMain}}
+                <div class="language-selector">
+                    <select id="languageSelect">
+                        <option value="en">EN</option>
+                        <option value="ru">RU</option>
+                        <option value="code">CODE</option>
+                    </select>
+                    <div class="selector-arrows"></div>
+                </div>
+                {{/if}}
+            </div>
+            {{{body}}}
+        </div>
+
+        <!-- Right Panel - Navigation -->
+        <div class="panel right-panel">
+            <div class="panel-header">
+                <h3>NAVIGATION</h3>
+                <div class="header-lights">
+                    <span class="light red"></span>
+                    <span class="light yellow"></span>
+                    <span class="light green"></span>
+                </div>
+            </div>
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="/" class="nav-link" data-page="home">HOME</a></li>
+                    {{#if User}}
+                    {{!-- <li><a href="/leaderboard" class="nav-link" data-page="leaderboard">LEADERBOARD</a></li>
+                    <li><a href="/profile" class="nav-link" data-page="profile">PROFILE</a></li>
+                    <li><a href="/settings" class="nav-link" data-page="settings">SETTINGS</a></li>
+                    <li><a href="/about" class="nav-link" data-page="about">ABOUT</a></li> --}}
+                    <li><a href="/logout" class="nav-link" data-page="logout">LOGOUT</a></li>
+                    {{else}}
+                    <li><a href="/login" class="nav-link" data-page="login">LOGIN</a></li>
+                    <li><a href="/register" class="nav-link" data-page="register">REGISTER</a></li>
+                    {{/if}}
+                </ul>
+            </nav>
+            {{#if User}}
+            <div class="user-info">
+                <div class="user-avatar"></div>
+                <div class="user-name">{{User.username}}</div>
+                <div class="user-status">STATUS: <span class="online">ONLINE</span></div>
+
+                <div class="user-stats">
+                    <div class="user-stat">
+                        <div class="stat-label">Avg Speed</div>
+                        <div>
+                            <span class="stat-value">{{User.averageSpeed}}</span>
+                            <span class="stat-unit">CPM</span>
+                        </div>
+                    </div>
+                    <div class="user-stat">
+                        <div class="stat-label">Avg Accuracy</div>
+                        <div>
+                            <span class="stat-value">{{User.averageAccuracy}}</span>
+                            <span class="stat-unit">%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {{else}}
+            <div class="user-info">
+                <div class="user-avatar"></div>
+                <div class="user-name">GUEST_USER</div>
+                <div class="user-status">STATUS: <span class="online">ONLINE</span></div>
+            </div>
+            {{/if}}
+        </div>
+
+        <!-- Leaderboard -->
+        {{#if isMain}}
+        {{> leaderboard }}
+        {{/if}}
+    </div>
+
+    <!-- Results Popup -->
+    {{#if isMain}}
+    {{>results_popup}}
+    {{/if}}
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/scripts/base.js"></script>
+</body>
+
+</html>

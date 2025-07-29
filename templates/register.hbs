@@ -1,0 +1,41 @@
+<div class="auth-wrapper">
+    <div class="auth-terminal">
+        <div class="panel-header">
+            <h3>NEW USER REGISTRATION</h3>
+            <div class="header-lights">
+                <span class="light red"></span>
+                <span class="light yellow"></span>
+                <span class="light green"></span>
+            </div>
+        </div>
+
+        <form class="auth-form" action="/register" method="POST">
+
+            <div class="input-group">
+                <label for="email">EMAIL:</label>
+                <input type="text" id="email" name="email" required>
+            </div>
+
+            <div class="input-group">
+                <label for="username">USERNAME:</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            
+            <div class="input-group">
+                <label for="password">PASSWORD:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+
+            {{#if error}}
+            <div class="system-message">{{error}}</div>
+            {{/if}}
+
+            <button type="submit" class="auth-btn">CREATE ACCOUNT</button>
+        </form>
+
+        <div class="auth-footer">
+            <span>ALREADY REGISTERED?</span>
+            <a href="/login" class="auth-link">LOGIN</a>
+        </div>
+    </div>
+</div>

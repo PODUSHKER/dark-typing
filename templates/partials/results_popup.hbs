@@ -1,0 +1,32 @@
+<div class="results-popup" id="resultsPopup">
+    <div class="popup-content">
+        <div class="popup-header">
+            <h3>TEST RESULTS</h3>
+            <span class="close-popup" id="closePopup">&times;</span>
+        </div>
+        <div class="popup-body">
+            <div class="result-stat">
+                <span class="result-label">SPEED:</span>
+                <span class="result-value" id="resultSpeed">0</span>
+                <span class="result-unit">C/M</span>
+            </div>
+            <div class="result-stat">
+                <span class="result-label">ACCURACY:</span>
+                <span class="result-value" id="resultAccuracy">0</span>
+                <span class="result-unit">%</span>
+            </div>
+            <div class="result-stat">
+                <span class="result-label">TIME:</span>
+                <span class="result-value" id="resultTime">0</span>
+                <span class="result-unit">S</span>
+            </div>
+            <div class="result-stat">
+                <span class="result-label">ERRORS:</span>
+                <span class="result-value" id="resultErrors">0</span>
+            </div>
+            {{#if User}}
+            <button class="save-result-btn" id="saveResultBtn">SAVE RESULT</button>
+            {{/if}}
+        </div>
+    </div>
+</div>

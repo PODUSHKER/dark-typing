@@ -1,0 +1,79 @@
+
+
+<div class="profile-container">
+  <h1>Профиль пользователя</h1>
+  <div class="profile-header">
+    <div class="profile-photo">
+      <img id="user-photo" src="/img/character/person.jpg" alt="User Photo">
+      <form id="photo-form" enctype="multipart/form-data">
+        <input type="file" id="photo-input" name="photo" accept="image/*">
+        <button type="submit">Загрузить фото</button>
+      </form>
+    </div>
+    <div class="profile-info">
+      <form id="nickname-form">
+        <label for="nickname">Никнейм:</label>
+        <input type="text" id="nickname" name="nickname" value="{{User.username}}">
+        <button type="submit">Изменить</button>
+      </form>
+    </div>
+  </div>
+  <div class="results-section">
+    <h2>История результатов</h2>
+    <table class="results-table">
+      <thead>
+        <tr>
+          <th>Дата</th>
+          <th>Скорость (CPM)</th>
+          <th>Ошибки</th>
+          <th>Точность (%)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each results}}
+        <tr>
+          <td>{{showDate this.createdAt}}</td>
+          <td>{{this.speed}}</td>
+          <td>{{this.mistakes}}</td>
+          <td>{{this.accuracy}}</td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  // Пример обработки формы изменения никнейма
+  document.getElementById('nickname-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const nickname = document.getElementById('nickname').value;
+    const response = await fetch('/api/updateNickname', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nickname })
+    });
+    if (response.ok) {
+      alert('Никнейм успешно изменён!');
+    } else {
+      alert('Ошибка при изменении никнейма.');
+    }
+  });
+
+  // Пример обработки формы загрузки фотографии
+  document.getElementById('photo-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const response = await fetch('/api/uploadPhoto', {
+      method: 'POST',
+      body: formData
+    });
+    if (response.ok) {
+      const data = await response.json();
+      document.getElementById('user-photo').src = data.photoUrl;
+      alert('Фото успешно загружено!');
+    } else {
+      alert('Ошибка при загрузке фотографии.');
+    }
+  });
+</script>

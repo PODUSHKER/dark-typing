@@ -22,6 +22,7 @@ app.use(cookieParser())
 
 
 app.set('view engine', 'hbs')
+app.set('views', 'templates')
 app.engine('hbs', hbsConfig)
 
 
@@ -30,12 +31,18 @@ async function main() {
     try {
         await sequelize.sync()
         io.on('connection', async (socket) => {
-            socket.on('showMessage', (message) => {
-                socket.broadcast.emit('showMessage', message)
+            socket.on('showMessage', (data) => {
+                socket.broadcast.emit('showMessage', data)
+            })
+            socket.on('updateLeaderboard', (results) => {
+                socket.broadcast.emit('updateLeaderboard', results)
+            })
+            socket.on('showNewRecord', (data) => {
+                socket.broadcast.emit('showNewRecord', data)
             })
         })
 
-        server.listen(80, process.env.ADDRESS, () => console.log('server start!'))
+        server.listen(80, process.env.IP_ADDRESS, () => console.log('server start!'))
 
         app.use(authChecker)
 

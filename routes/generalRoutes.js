@@ -10,9 +10,13 @@ generalRouter.post('/register', generalControllers.postRegister)
 
 generalRouter.get('/logout', generalControllers.logout)
 
-
+generalRouter.get('/profile', generalControllers.getProfile)
 
 generalRouter.get('/', generalControllers.getMain)
 
 
+generalRouter.get('/deliveryMail', generalControllers.getDeliveryMail)
+
+
+generalRouter.get('/confirmMail/:id', generalControllers.getConfirmMail);
 module.exports = generalRouter;

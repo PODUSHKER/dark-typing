@@ -1,52 +1,103 @@
+const { Op } = require('sequelize')
 const { User, Message, Result } = require('../models/associations.js')
 const fs = require('fs').promises
 const path = require('path')
-const { stringToArray, arrayToString } = require('../utils/toArrayHelp.js')
 
 exports.saveResult = async (request, response) => {
     try {
-        const { userId, ...data } = request.body
-        const user = await User.findOne({ where: { id: userId } })
-        const result = await new Result({ ...data, UserId: userId }).save()
-        // TODO
-        user.results = arrayToString([...stringToArray(user.results), result.id])
-        //
+        const { ...data } = request.body
+        const user = response.locals['User']
+        const result = await new Result({ ...data, UserId: user.id }).save()
+        let topData = null;
+
+        const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+        const top1 = [...await Result.findAll({
+            where: {
+                createdAt: {
+                    [Op.gte]: twentyFourHoursAgo
+                }
+            },
+            include: [{
+                model: User,
+            }],
+            order: [['speed', 'DESC']], // Сортируем по скорости (по убыванию)
+            limit: 1, // Ограничиваем 10 результатами
+            raw: true, // Для простого JSON вывода
+            nest: true
+        })][0]
+
+        if (top1.id === result.id) {
+            topData = {
+                speed: top1.speed,
+                username: top1.User.username,
+            }
+        }
+        const userResults = await Result.findAll({ where: { UserId: user.id } })
+        const averageSpeed = +((userResults.reduce((acc, el) => acc += el.speed, 0) / userResults.length).toFixed(0));
+        const averageAccuracy = +((userResults.reduce((acc, el) => acc += el.accuracy, 0) / userResults.length).toFixed(1));
+
+        user.averageAccuracy = averageAccuracy;
+        user.averageSpeed = averageSpeed;
+
+
         await user.save()
-        const results = (await Result.findAll({ include: User })).sort((a, b) => b.speed - a.speed)
-        let formatResults = results.reduce((acc, el) => acc.map(el => String(el.UserId)).includes(String(el.UserId)) ? acc : [...acc, el], [])
-        formatResults = formatResults.length > 10 ? formatResults.slice(0, 10) : formatResults;
-        console.log(formatResults)
-        response.json({ results: formatResults })
+        response.json({ success: true, updatedStats: { averageSpeed, averageAccuracy }, topData })
     }
     catch (err) {
-        console.log(err)
+        
     }
 }
 
-exports.getTypingText = async (request, response) => {
-    try {
-        console.log(request.body['lang'])
-        const text = await fs.readFile(path.join(process.env.APP_DIR, `public/text/${request.body['lang']}.txt`))
-        const typingTexts = text.toString().split(/[\n\r]/g).filter(el => el.length)
-        const randIndex = Number(String(Math.random()).slice(2, 4)) % typingTexts.length
-        const typingText = typingTexts[randIndex]
-        response.json({ typingText })
-    }
-    catch (err) {
-        console.log(err)
-    }
-}
 
 
 exports.sendMessage = async (request, response) => {
     try {
-        const { from, text } = request.body;
-        console.log(from)
-        await Message.create({ UserId: from, text })
-        console.log('im here')
-        response.end()
+        const { message: text } = request.body;
+        await Message.create({ UserId: request.body['userId'], text })
+        return response.json({ username: response.locals['User'].username })
     }
     catch (err) {
-        console.log(err)
     }
 }
+
+
+exports.getResults = async (request, response) => {
+    try {
+        // Рассчитываем дату 24 часа назад
+        const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+        // Получаем топ-10 результатов
+        const results = [...await Result.findAll({
+            where: {
+                createdAt: {
+                    [Op.gte]: twentyFourHoursAgo
+                }
+            },
+            include: [{
+                model: User,
+            }],
+            order: [['speed', 'DESC']], // Сортируем по скорости (по убыванию)
+            limit: 10, // Ограничиваем 10 результатами
+            raw: true, // Для простого JSON вывода
+            nest: true
+        })].reduce((acc, el) => acc.map(el => el.User.username).includes(el.User.username) ? acc : [...acc, el], [])
+        
+
+        // Добавляем ранги к результатам
+        const rankedResults = results.map((result, index) => ({
+            rank: index + 1,
+            username: result.User.username,
+            speed: result.speed,
+            language: result.language,
+            date: new Date(result.createdAt).toLocaleDateString(),
+            accuracy: result.accuracy
+        }));
+
+        return response.json({ results: rankedResults });
+    }
+    catch (err) {
+        console.error('Error fetching results:', err);
+        return response.status(500).json({ error: 'Internal server error' });
+    }
+};

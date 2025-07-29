@@ -1,83 +1,120 @@
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
-const { User, Message, Result } = require('../models/associations.js')
+const { User, Message, Result, Mail } = require('../models/associations.js')
+const nodemailer = require('nodemailer');
 
 const fs = require('fs').promises
 const path = require('path')
+const { response } = require('express')
+const { where, Op } = require('sequelize')
+const verifyMailSender = require('../utils/mailSender.js')
 
 
 exports.getMain = async (request, response) => {
-    try{
-        const results = (await Result.findAll({include: User})).sort((a, b) => b.speed-a.speed)
-        const formatResults = results.reduce((acc, el) => acc.map(el => String(el.UserId)).includes(String(el.UserId)) ? acc : [...acc, el], [])
-        const messages = await Message.findAll({include: User})
-        console.log('messages', messages)
-        console.log('formatResults', formatResults)
-        console.log('results', results)
-        response.render('main.hbs', {title: 'dark.typing:_', results: formatResults, cssFile: 'main.css', messages})
+    try {
+        response.render('main.hbs', { title: 'dark.typing:_', cssFile: 'main.css', isMain: true })
     }
-    catch(err){
-        console.log(err)
+    catch (err) {
+        
     }
-} 
+}
 
 exports.getLogin = async (request, response) => {
-    try{
-        response.render('login.hbs', {title: 'Login', cssFile: 'login.css'})
+    try {
+        response.render('login.hbs', { title: 'Login', cssFile: 'auth.css' })
     }
-    catch(err){
-        console.log(err)
+    catch (err) {
+        
     }
 }
 
 exports.postLogin = async (request, response) => {
-    try{
-        console.log('im here')
-        const user = await User.findOne({where: {email: request.body['email']}})
-        if (user){
+    try {
+        
+        const user = await User.findOne({ where: { email: request.body['email'] } })
+        if (user) {
+            
             const isValid = await bcrypt.compare(request.body['password'], user.password);
-            if(isValid){
-                const token = jwt.sign({ id: user.id }, process.env.SECRET, {expiresIn: '24h'})
+            if (isValid && user.isAccept) {
+                
+                const token = jwt.sign({ id: user.id }, process.env.SECRET, { expiresIn: '24h' })
                 response.cookie('token', `Bearer ${token}`)
                 response.redirect("/")
             }
         }
         response.redirect('/login')
     }
-    catch(err){
-        console.log(err)
+    catch (err) {
+        
     }
 }
 
-exports.getRegister = async (request, response) => {
-    try{
-        response.render('register.hbs', {title: 'Register', cssFile: 'register.css'})
+exports.getConfirmMail = async (request, response) => {
+    if (request.params['id']) {
+        const mail = await Mail.findOne({ where: { id: request.params['id'] }, raw: true });
+        if (mail) {
+            await User.update({ isAccept: true }, { where: { id: mail.UserId } })
+            await Mail.destroy({ where: { id: mail.id } })
+            return response.render('confirmMail.hbs', { cssFile: 'confirmMail.css' })
+        }
     }
-    catch(err){
-        console.log(err)
+}
+
+exports.getDeliveryMail = async (request, response) => {
+    return response.render('deliveryMail.hbs', { cssFile: 'deliveryMail.css' })
+}
+
+exports.getRegister = async (request, response) => {
+    try {
+        response.render('register.hbs', { title: 'Register', cssFile: 'auth.css', })
+    }
+    catch (err) {
+        
     }
 }
 exports.postRegister = async (request, response) => {
-    try{
-        const {password, ...items} = request.body;
+    try {
+        const { password, ...items } = request.body;
+        
+        items.username = (items.username).toUpperCase()
         const salt = await bcrypt.genSalt(7)
         const hash = await bcrypt.hash(password, salt)
-        await User.create({...items, password: hash})
-        response.redirect('/')
+        const user = await User.create({ ...items, password: hash })
+        const mail = await Mail.create({ UserId: user.id })
+        const verifyLink = `${request.protocol}://${request.get('host')}/confirmMail/${mail.id}`
+        await verifyMailSender(user.email, verifyLink)
+        response.redirect('/deliveryMail')
     }
-    catch(err){
-        console.log(err)
+    catch (err) {
+        
     }
 }
 
 
 
 exports.logout = async (request, response) => {
-    try{
+    try {
         response.clearCookie('token')
         response.redirect('/')
     }
-    catch(err){
-        console.log(err)
+    catch (err) {
+        
     }
+}
+
+
+exports.getProfile = async (request, response) => {
+    try {
+        const results = await Result.findAll({ where: { UserId: request.body['userId'] } })
+        response.render('profile.hbs', { results, cssFile: 'profile.css' })
+    }
+    catch (err) {
+        
+    }
+}
+
+
+exports.logout = async function (request, response) {
+    response.clearCookie('token');
+    return response.redirect('/');
 }

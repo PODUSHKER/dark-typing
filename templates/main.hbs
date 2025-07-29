@@ -1,0 +1,44 @@
+<!-- Center Panel - Typing Area -->
+
+<div class="typing-container">
+    <div class="terminal-header">
+        <div class="terminal-lights">
+            <span class="light red"></span>
+            <span class="light yellow"></span>
+            <span class="light green"></span>
+        </div>
+        <div class="terminal-title">SPEED-TEST TERMINAL</div>
+    </div>
+    <div class="text-display" id="textDisplay">
+        <!-- Text to type will appear here -->
+    </div>
+    <div class="input-container">
+        <input type="text" id="typingInput" autocomplete="off" autocorrect="off" autocapitalize="off"
+            spellcheck="false">
+        <div class="terminal-cursor"></div>
+    </div>
+    <div class="stats-container">
+        <div class="stat">
+            <span class="stat-label">SPEED</span>
+            <span class="stat-value" id="speedStat">0</span>
+            <span class="stat-unit">C/M</span>
+        </div>
+        <div class="stat">
+            <span class="stat-label">ERRORS</span>
+            <span class="stat-value" id="errorStat">0</span>
+        </div>
+        <div class="stat">
+            <span class="stat-label">TIME</span>
+            <span class="stat-value" id="timeStat">0</span>
+            <span class="stat-unit">S</span>
+        </div>
+    </div>
+    <button class="reload-btn" id="reloadBtn">
+        <span>RELOAD TEXT</span>
+        <div class="reload-icon"></div>
+    </button>
+</div>
+
+
+<script src="/scripts/texts.js"></script>
+<script src="/scripts/main.js"></script>

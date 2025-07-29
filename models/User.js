@@ -21,9 +21,17 @@ const User = sequelize.define('User', {
         allowNull: false,
         unique: true
     },
-    results: {
-        type: DataTypes.STRING,
-        defaultValue: ''
+    averageSpeed: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0
+    },
+    averageAccuracy: {
+        type: DataTypes.DECIMAL,
+        defaultValue: 0
+    },
+    isAccept: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
     }
 })
 

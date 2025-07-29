@@ -1,0 +1,36 @@
+{{! Используем base.hbs как основу }}
+<div class="auth-wrapper">
+    <div class="auth-terminal">
+        <div class="panel-header">
+            <h3>SYSTEM LOGIN</h3>
+            <div class="header-lights">
+                <span class="light red"></span>
+                <span class="light yellow"></span>
+                <span class="light green"></span>
+            </div>
+        </div>
+
+        <form class="auth-form" action="/login" method="POST">
+            <div class="input-group">
+                <label for="email">EMAIL:</label>
+                <input type="text" id="email" name="email" required>
+            </div>
+
+            <div class="input-group">
+                <label for="password">PASSWORD:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+
+            {{#if error}}
+            <div class="system-message">{{error}}</div>
+            {{/if}}
+
+            <button type="submit" class="auth-btn">ACCESS TERMINAL</button>
+        </form>
+
+        <div class="auth-footer">
+            <span>NO CREDENTIALS?</span>
+            <a href="/register" class="auth-link">REQUEST ACCESS</a>
+        </div>
+    </div>
+</div>
